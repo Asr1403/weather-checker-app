@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Weather Checker</title>
+  <link rel="shortcut icon" href="./logo.png" type="image">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(to right, #83a4d4, #b6fbff);
+      margin: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+    #app {
+      background: rgba(255,255,255,0.9);
+      padding: 2rem;
+      border-radius: 10px;
+      text-align: center;
+      box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+      width: 300px;
+    }
+    input, button {
+      padding: 0.5rem;
+      font-size: 1rem;
+      margin: 0.5rem 0;
+      width: calc(100% - 1rem);
+    }
+    button {
+      background: #0077cc;
+      color: #fff;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    button:hover {
+      background: #005fa3;
+    }
+    .weather-result {
+      margin-top: 1rem;
+    }
+    .weather-result h2 {
+      margin: 0.5rem 0;
+      font-size: 1.2rem;
+    }
+    .weather-result p {
+      margin: 0.2rem 0;
+      font-size: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <h1>Weather Checker</h1>
+    <input type="text" id="locationInput" placeholder="Enter a location">
+    <button id="searchButton">Get Weather</button>
+    <div class="weather-result" id="weatherResult" style="display:none;">
+      <h2 id="locName"></h2>
+      <p id="temp"></p>
+      <p id="cond"></p>
+      <p id="aqi"></p>
+    </div>
+  </div>
+  <script>
+    const apiKey = '95c1d9c7b1de4e02937181929251507';
+    const btn = document.getElementById('searchButton');
+    const input = document.getElementById('locationInput');
+    const result = document.getElementById('weatherResult');
+
+    btn.addEventListener('click', () => {
+      const q = input.value.trim();
+      if (!q) {
+        alert('Please enter a location.');
+        return;
+      }
+      fetch(`https://api.weatherapi.com/v1/current.json?key=${apiKey}&q=${encodeURIComponent(q)}&aqi=yes`)
+        .then(res => {
+          if (!res.ok) throw new Error('Location not found');
+          return res.json();
+        })
+        .then(data => {
+          document.getElementById('locName').textContent = `${data.location.name}, ${data.location.region}, ${data.location.country}`;
+          document.getElementById('temp').textContent = `🌡️ Temperature: ${data.current.temp_c} °C`;
+          document.getElementById('cond').textContent = `Condition: ${data.current.condition.text}`;
+          document.getElementById('aqi').textContent = `Air Quality Index: ${data.current.air_quality['us-epa-index'] ?? 'N/A'}`;
+          result.style.display = 'block';
+        })
+        .catch(err => {
+          alert(err.message);
+          result.style.display = 'none';
+        });
+    });
+  </script>
+</body>
+</html>
